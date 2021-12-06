@@ -4,9 +4,10 @@ export default function (Vue) {
   Vue.prototype._init = function (options) {
     options = options || {}
     const componentOptions = this.constructor.options
-    // store injection
+    // store injection (store 注入)
     const store = options.store || componentOptions.store
     if (store) {
+      // this.$store 的实现
       this.$store = store
     } else if (options.parent && options.parent.$store) {
       this.$store = options.parent.$store
@@ -25,7 +26,7 @@ export default function (Vue) {
       if (state) {
         options.computed = options.computed || {}
         Object.keys(state).forEach(key => {
-          options.computed[key] = function vuexBoundGetter () {
+          options.computed[key] = function vuexBoundGetter() {
             return state[key].call(this, this.$store.state)
           }
         })
@@ -34,7 +35,7 @@ export default function (Vue) {
       if (actions) {
         options.methods = options.methods || {}
         Object.keys(actions).forEach(key => {
-          options.methods[key] = function vuexBoundAction (...args) {
+          options.methods[key] = function vuexBoundAction(...args) {
             return actions[key].call(this, this.$store, ...args)
           }
         })

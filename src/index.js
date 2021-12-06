@@ -3,6 +3,9 @@ import devtoolMiddleware from './middlewares/devtool'
 import createLogger from './middlewares/logger'
 import override from './override'
 
+/**
+ * Vue 根实例，通过 install 方法获取
+ */
 let Vue
 
 export class Store {
@@ -23,6 +26,7 @@ export class Store {
     middlewares = [],
     strict = false
   } = {}) {
+    // 初始化的时候没有 mutations 的方法在执行
     this._dispatching = false
     this._rootMutations = this._mutations = mutations
     this._modules = modules
@@ -35,10 +39,15 @@ export class Store {
     this._vm = new Vue({
       data: state
     })
+    // 绑定 state tree 到 root tree
     this._setupModuleState(state, modules)
+    // 绑定 mutations 到子树，并将他们合并为一个最终的 mutations map
     this._setupModuleMutations(modules)
+
     this._setupMiddlewares(middlewares, state)
     // add extra warnings in strict mode
+    // 如果把 strict 设置为 true, 那么 vuex 会对 state 树进行一个深观察
+    // 所以为了避免不必要的性能损耗，要在生产环境中关闭严格模式
     if (strict) {
       this._setupMutationCheck()
     }
@@ -62,24 +71,30 @@ export class Store {
   /**
    * Dispatch an action.
    *
-   * @param {String} type
+   * @param {String} type type为mutaions的方法名
    */
 
   dispatch (type, ...payload) {
+    // 通过 type 来获取 mutaions 的方法名
     const mutation = this._mutations[type]
     const prevSnapshot = this._prevSnapshot
+
     const state = this.state
     let snapshot, clonedPayload
     if (mutation) {
       this._dispatching = true
-      // apply the mutation
+      // 考虑到 mutation 是数组的情况
+      // 在 vuex 正式版本中好像是没有这种写法的
       if (Array.isArray(mutation)) {
         mutation.forEach(m => m(state, ...payload))
       } else {
+        // 执行mutaion的方法修改 state 状态
         mutation(state, ...payload)
       }
+      // 执行成功后，将 dispatching 设置为 true 
       this._dispatching = false
       // invoke middlewares
+      // 正式环境中好像没有这种东西
       if (this._needSnapshots) {
         snapshot = this._prevSnapshot = deepClone(state)
         clonedPayload = deepClone(payload)
@@ -93,7 +108,7 @@ export class Store {
           }
         }
       })
-    } else {
+    } else { 
       console.warn(`[vuex] Unknown mutation: ${type}`)
     }
   }
@@ -131,12 +146,13 @@ export class Store {
 
   /**
    * Attach sub state tree of each module to the root tree.
-   *
+   * 把每个模块的 state tree 添加到根节点树
    * @param {Object} state
    * @param {Object} modules
    */
 
   _setupModuleState (state, modules) {
+    console.log('被执行了吧', modules)
     const { setPath } = Vue.parsers.path
     Object.keys(modules).forEach(key => {
       setPath(state, key, modules[key].state)
@@ -146,7 +162,7 @@ export class Store {
   /**
    * Bind mutations for each module to its sub tree and
    * merge them all into one final mutations map.
-   *
+   * 将每个模块的 mutations 绑定到其子树，并将他们全部合并为一个最终的 mutations map
    * @param {Object} modules
    */
 
@@ -202,7 +218,8 @@ export class Store {
    *
    * A middleware can demand the state it receives to be
    * "snapshots", i.e. deep clones of the actual state tree.
-   *
+   *  
+   * 设置中间件 可能是为 dev tool用的
    * @param {Array} middlewares
    * @param {Object} state
    */
