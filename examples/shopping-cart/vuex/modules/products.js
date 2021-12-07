@@ -15,6 +15,7 @@ const mutations = {
   },
 
   [ADD_TO_CART] (state, productId) {
+    console.log('我是products')
     state.all.find(p => p.id === productId).inventory--
   }
 }

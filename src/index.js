@@ -112,7 +112,7 @@ class Store {
         `[vuex] Expects string as the type, but found ${typeof type}.`
       )
     }
-
+    // module 中有同名的 mutations
     const handler = this._mutations[type]
     const state = this.state
     if (handler) {
@@ -197,15 +197,17 @@ class Store {
    */
 
   _setupModuleState (state, modules) {
+    // 如果不是 module 传入的类型格式不是 object 就不执行
     if (!isObject(modules)) return
-
     Object.keys(modules).forEach(key => {
       const module = modules[key]
 
       // set this module's state
+      // 将 module 中的 state 树添加到总的 state 树上，并添加响应式处理
       Vue.set(state, key, module.state || {})
 
       // retrieve nested modules
+      // 检索嵌套模块
       this._setupModuleState(state[key], module.modules)
     })
   }
@@ -291,6 +293,7 @@ class Store {
 }
 
 function install (_Vue) {
+  // 如果重复调用 Vue.use() 会报错
   if (Vue) {
     console.warn(
       '[vuex] already installed. Vue.use(Vuex) should be called only once.'
@@ -298,6 +301,7 @@ function install (_Vue) {
     return
   }
   Vue = _Vue
+  // 重载 Vue 
   override(Vue)
 }
 

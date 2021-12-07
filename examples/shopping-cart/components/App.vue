@@ -14,6 +14,9 @@ import ProductList from './ProductList.vue'
 import Cart from './Cart.vue'
 
 export default {
-  components: { ProductList, Cart }
+  components: { ProductList, Cart },
+  mounted() {
+    console.log('state in App.vue', this.$store)
+  }
 }
 </script>
