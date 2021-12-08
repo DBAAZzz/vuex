@@ -61,6 +61,7 @@ export class Store {
     // initialize the store vm, which is responsible for the reactivity
     // (also registers _wrappedGetters as computed properties)
     // 初始化 store 实例，同时将 _wrappedgetter 注册为 computed 属性 
+    debugger
     resetStoreVM(this, state)
 
     // apply plugins
@@ -343,9 +344,11 @@ function installModule (store, rootState, path, module, hot) {
 
   // register in namespace map
   if (module.namespaced) {
+    // 如果 module 之前被注册过就会报错
     if (store._modulesNamespaceMap[namespace] && __DEV__) {
       console.error(`[vuex] duplicate namespace ${namespace} for the namespaced module ${path.join('/')}`)
     }
+    // 
     store._modulesNamespaceMap[namespace] = module
   }
 
@@ -361,12 +364,14 @@ function installModule (store, rootState, path, module, hot) {
           )
         }
       }
+      // 将子 module 的 state 添加到 parentState 并有响应式处理
       Vue.set(parentState, moduleName, module.state)
     })
   }
 
   const local = module.context = makeLocalContext(store, namespace, path)
   module.forEachMutation((mutation, key) => {
+    // 以 shopping-cart 为例子就是 cart/${key}
     const namespacedType = namespace + key
     registerMutation(store, namespacedType, mutation, local)
   })
@@ -470,6 +475,7 @@ function makeLocalGetters (store, namespace) {
 }
 
 function registerMutation (store, type, handler, local) {
+  // 如果 store._mutations[type] 没有为null, 就初始化 this._mutations[type] 并赋值 []
   const entry = store._mutations[type] || (store._mutations[type] = [])
   entry.push(function wrappedMutationHandler (payload) {
     handler.call(store, local.state, payload)
@@ -502,6 +508,7 @@ function registerAction (store, type, handler, local) {
 }
 
 function registerGetter (store, type, rawGetter, local) {
+  // 如果 store._wrapperGetters[type] 中有相同的 type 就报错
   if (store._wrappedGetters[type]) {
     if (__DEV__) {
       console.error(`[vuex] duplicate getter key: ${type}`)
