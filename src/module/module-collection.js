@@ -4,6 +4,8 @@ import { assert, forEachValue } from '../util'
 export default class ModuleCollection {
   constructor (rawRootModule) {
     // register root module (Vuex.Store options)
+    // 注册根 module 
+    console.log('rawRootModule', rawRootModule)
     this.register([], rawRootModule, false)
   }
 
@@ -39,6 +41,7 @@ export default class ModuleCollection {
     }
 
     // register nested modules
+    // 注册嵌套 modules
     if (rawModule.modules) {
       forEachValue(rawModule.modules, (rawChildModule, key) => {
         this.register(path.concat(key), rawChildModule, runtime)
@@ -126,12 +129,12 @@ const assertTypes = {
   actions: objectAssert
 }
 
+// 用来判断 module 中getters、mutations、actions 的写法是否正确
 function assertRawModule (path, rawModule) {
   Object.keys(assertTypes).forEach(key => {
     if (!rawModule[key]) return
 
     const assertOptions = assertTypes[key]
-
     forEachValue(rawModule[key], (value, type) => {
       assert(
         assertOptions.assert(value),

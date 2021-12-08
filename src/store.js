@@ -51,14 +51,16 @@ export class Store {
     this.strict = strict
 
     const state = this._modules.root.state
-
+    
     // init root module.
     // this also recursively registers all sub-modules
     // and collects all module getters inside this._wrappedGetters
-    installModule(this, state, [], this._modules.root)
+    // 初始化根 module 同时递归的注册所有子 module
 
+    installModule(this, state, [], this._modules.root)
     // initialize the store vm, which is responsible for the reactivity
     // (also registers _wrappedGetters as computed properties)
+    // 初始化 store 实例，同时将 _wrappedgetter 注册为 computed 属性 
     resetStoreVM(this, state)
 
     // apply plugins
@@ -82,6 +84,13 @@ export class Store {
 
   commit (_type, _payload, _options) {
     // check object-style commit
+    /**
+     * 检查 object 形式调用的 commit, mutation 也可以通过下面这种方式调用
+     * mutation({
+     *  type: 'increment',
+     *  amount: 10
+     * })
+     */
     const {
       type,
       payload,
@@ -357,7 +366,6 @@ function installModule (store, rootState, path, module, hot) {
   }
 
   const local = module.context = makeLocalContext(store, namespace, path)
-
   module.forEachMutation((mutation, key) => {
     const namespacedType = namespace + key
     registerMutation(store, namespacedType, mutation, local)
