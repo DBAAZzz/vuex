@@ -14,7 +14,9 @@ export function find (list, f) {
  * Deep copy the given object considering circular structure.
  * This function caches all nested objects and its copies.
  * If it detects circular structure, use cached copy to avoid infinite loop.
- *
+ * 考虑到圆形结构，对给定对象进行深度复制。
+ * 此函数用于缓存所有嵌套对象及其副本。
+ * 如果检测到循环结构，请使用缓存副本以避免无限循环。
  * @param {*} obj
  * @param {Array<Object>} cache
  * @return {*}
@@ -33,7 +35,10 @@ export function deepCopy (obj, cache = []) {
 
   const copy = Array.isArray(obj) ? [] : {}
   // put the copy into cache at first
+  // 首先将副本放入缓存
+  
   // because we want to refer it in recursive deepCopy
+  // 因为我们想在递归 deepCopy 中引用它
   cache.push({
     original: obj,
     copy

@@ -38,6 +38,7 @@ export class Store {
     this._makeLocalGettersCache = Object.create(null)
 
     // bind commit and dispatch to self
+    
     const store = this
     const { dispatch, commit } = this
     this.dispatch = function boundDispatch (type, payload) {
@@ -61,9 +62,7 @@ export class Store {
     // initialize the store vm, which is responsible for the reactivity
     // (also registers _wrappedGetters as computed properties)
     // 初始化 store 实例，同时将 _wrappedgetter 注册为 computed 属性 
-    debugger
     resetStoreVM(this, state)
-
     // apply plugins
     plugins.forEach(plugin => plugin(this))
 
@@ -83,6 +82,7 @@ export class Store {
     }
   }
 
+  // 实现 commit ,通过 commit 去调用 mutations 的方法
   commit (_type, _payload, _options) {
     // check object-style commit
     /**
@@ -112,6 +112,7 @@ export class Store {
       })
     })
 
+    // 浅拷贝，防止订阅者同步调用unsubscribe时迭代器失效
     this._subscribers
       .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
       .forEach(sub => sub(mutation, this.state))
@@ -133,7 +134,7 @@ export class Store {
       type,
       payload
     } = unifyObjectStyle(_type, _payload)
-
+    
     const action = { type, payload }
     const entry = this._actions[type]
     if (!entry) {
@@ -143,6 +144,7 @@ export class Store {
       return
     }
 
+    
     try {
       this._actionSubscribers
         .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
